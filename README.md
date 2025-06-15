@@ -1,54 +1,61 @@
-# React + TypeScript + Vite
+# AI Chat Assistant (React + TypeScript + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean and responsive AI chat interface built with **React**, **TypeScript**, and **Vite**, integrating DeepSeek API and styled using [ChatUI](https://chatui.io/) component system.
 
-Currently, two official plugins are available:
+## ✅ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🤖 **Conversational AI** – Integrated with [DeepSeek API](https://platform.deepseek.com)
+- ⌨️ **Typing Indicator** – Shows assistant is responding in real-time
+- 📝 **Markdown Support** – Renders formatted replies (bold, links, code blocks, etc.)
+- 💬 **Chat UI Components** – Built with customizable bubble and typing components
 
-## Expanding the ESLint configuration
+## 🧰 Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 18 + TypeScript
+- Vite for fast development
+- DeepSeek API
+- marked + DOMPurify for Markdown parsing & sanitization
+- Custom or library-based Chat UI components
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 📦 Installation
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Run Dev Server
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm run dev
 ```
+
+## 🌐 Environment Variables
+
+Create a `.env` file in your root directory:
+
+```env
+VITE_DEEPSEEK_API_KEY=your_deepseek_api_key_here
+```
+
+You can obtain your API key from the [DeepSeek API Console](https://platform.deepseek.com/usage) and vie the full API documentation [here](https://api-docs.deepseek.com/)
+
+## 🛡 Security
+
+- All HTML content is sanitized using DOMPurify
+- API keys are stored securely via `.env` and never exposed in code
+
+## 📸 Preview
+
+Example chat conversations:
+
+### 💬 Plain Text Message
+
+![Plain text preview](./public/preview-plain.png)
+
+### 📝 Markdown Rendering
+
+![Markdown preview](./public/preview-markdown.png)
+
+## 📄 License
+
+MIT License
