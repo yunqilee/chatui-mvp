@@ -6,6 +6,10 @@ import Chat, {
   MessageProps,
   MessageType,
   TextMessageContent,
+  Card,
+  CardTitle,
+  CardText,
+  CardMedia,
 } from "@chatui/core";
 import { marked } from "marked";
 import DOMpurify from "dompurify";
@@ -42,6 +46,19 @@ function App() {
         position: "left",
       });
 
+      if (val.includes("今天") && val.includes("天气")) {
+        updateMsg(typingId, {
+          type: "card",
+          position: "left",
+          content: {
+            title: "🌤️ 上海 · 当前天气",
+            description: "气温：27°C，体感：30°C，湿度：60%",
+            picUrl: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+          },
+        });
+        return;
+      }
+
       try {
         const res = await fetch(
           "https://api.deepseek.com/v1/chat/completions",
@@ -58,19 +75,49 @@ function App() {
                 { role: "user", content: val },
               ],
               temperature: 0.7,
+              stream: true,
             }),
           }
         );
-        const data = await res.json();
-        const reply =
-          data.choices?.[0]?.message?.content ||
-          "抱歉，我现在无法回答这个问题。";
-        const msgType = isMarkdown(reply) ? "markdown" : "text";
-        updateMsg(typingId, {
-          type: msgType,
-          content: { text: reply },
-          position: "left",
-        });
+        if (!res.ok || !res.body) throw new Error(res.statusText);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullText = "";
+        let buffer = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const payload = line.replace(/^data:\s*/, "");
+            if (payload === "[DONE]") {
+              const msgType = isMarkdown(fullText) ? "markdown" : "text";
+              updateMsg(typingId, {
+                type: msgType,
+                content: { text: fullText },
+                position: "left",
+              });
+              return;
+            }
+            try {
+              const data = JSON.parse(payload);
+              if (data.choices && data.choices.length > 0) {
+                const content = data.choices[0].delta?.content || "";
+                fullText += content;
+                updateMsg(typingId, {
+                  type: "text",
+                  content: { text: fullText },
+                  position: "left",
+                });
+              }
+            } catch (e) {
+              console.error("JSON parse error:", e);
+            }
+          }
+        }
       } catch (error) {
         console.error("Error fetching response:", error);
         updateMsg(typingId, {
@@ -97,6 +144,14 @@ function App() {
         );
       case "typing":
         return <Typing />;
+      case "card":
+        return (
+          <Card>
+            <CardMedia aspectRatio="wide" image={content.picUrl} />
+            <CardTitle>{content.title}</CardTitle>
+            <CardText>{content.description}</CardText>
+          </Card>
+        );
       default:
         return null;
     }
