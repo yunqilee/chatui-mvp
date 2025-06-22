@@ -5,23 +5,29 @@ import { SignJWT, importPKCS8 } from "jose";
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 
-app.post("/generate-jwt", async (req, res) => {
-  try {
-    const { privateKey } = req.body;
+const privateKey = process.env.PRIVATE_KEY;
 
-    const key = await importPKCS8(privateKey, "ES256");
-
-    const jwt = await new SignJWT({ "some-claim": "some-value" })
-      .setProtectedHeader({ alg: "ES256" })
-      .sign(key);
-
-    res.json({ jwt });
-  } catch (error) {
-    console.error("Error generating JWT:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+app.get("/generate-jwt", (req, res) => {
+  importPKCS8(privateKey, "EdDSA")
+    .then((privateKey) => {
+      const customHeader = {
+        alg: "EdDSA",
+        kid: process.env.kid,
+      };
+      const iat = Math.floor(Date.now() / 1000) - 30;
+      const exp = iat + 900;
+      const customPayload = {
+        sub: process.env.sub,
+        iat: iat,
+        exp: exp,
+      };
+      new SignJWT(customPayload)
+        .setProtectedHeader(customHeader)
+        .sign(privateKey)
+        .then((token) => console.log("JWT: " + token));
+    })
+    .catch((error) => console.error(error));
 });
 
 app.listen(process.env.PORT || 3000, () => {
