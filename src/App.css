@@ -36,6 +36,11 @@ body {
   overflow: hidden;
 }
 
+.CardMedia {
+  width: 80px;
+  height: 80px;
+}
+
 /* Smooth scroll for mobile */
 * {
   -webkit-overflow-scrolling: touch;

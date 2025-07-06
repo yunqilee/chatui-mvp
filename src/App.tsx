@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Chat, {
   Bubble,
   Typing,
@@ -14,6 +14,7 @@ import Chat, {
 import { marked } from "marked";
 import DOMpurify from "dompurify";
 import { isMarkdown } from "./utils/isMarkdown";
+import { getCurrentWeather } from "./utils/getCurrentWeather";
 import "./App.css";
 import "@chatui/core/dist/index.css";
 
@@ -47,14 +48,11 @@ function App() {
       });
 
       if (val.includes("今天") && val.includes("天气")) {
+        const weatherCard = await getCurrentWeather();
         updateMsg(typingId, {
           type: "card",
           position: "left",
-          content: {
-            title: "🌤️ 上海 · 当前天气",
-            description: "气温：27°C，体感：30°C，湿度：60%",
-            picUrl: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
-          },
+          content: weatherCard,
         });
         return;
       }
