@@ -1,22 +1,28 @@
-import { useEffect, useState } from "react";
+import React from "react";
 import Chat, {
   Bubble,
   Typing,
   useMessages,
-  MessageProps,
-  MessageType,
-  TextMessageContent,
   Card,
-  CardTitle,
-  CardText,
   CardMedia,
 } from "@chatui/core";
+import type { MessageProps } from "@chatui/core";
 import { marked } from "marked";
 import DOMpurify from "dompurify";
 import { isMarkdown } from "./utils/isMarkdown";
 import { getCurrentWeather } from "./utils/getCurrentWeather";
 import "./App.css";
 import "@chatui/core/dist/index.css";
+
+interface TextMessageContent {
+  text: string;
+}
+
+interface CardContent {
+  title: string;
+  description: string;
+  picUrl: string;
+}
 
 const initialMessages: MessageProps[] = [
   {
@@ -32,7 +38,7 @@ const initialMessages: MessageProps[] = [
 function App() {
   const { messages, appendMsg, updateMsg } = useMessages(initialMessages);
 
-  const handleSend = async (type: MessageType, val: string) => {
+  const handleSend = async (type: string, val: string) => {
     if (type === "text" && val.trim()) {
       appendMsg({
         type: "text",
@@ -132,24 +138,32 @@ function App() {
     switch (type) {
       case "text":
         return <Bubble content={(content as TextMessageContent).text} />;
-      case "markdown":
-        const rawHtml = marked.parse((content as any).text || "");
-        const safeHtml = DOMpurify.sanitize(rawHtml);
+      case "markdown": {
+        const rawHtml = marked.parse(
+          (content as TextMessageContent).text || ""
+        );
+        const safeHtml =
+          typeof rawHtml === "string" ? DOMpurify.sanitize(rawHtml) : "";
         return (
           <Bubble>
             <div dangerouslySetInnerHTML={{ __html: safeHtml }} />
           </Bubble>
         );
+      }
       case "typing":
         return <Typing />;
-      case "card":
+      case "card": {
+        const cardContent = content as CardContent;
         return (
           <Card>
-            <CardMedia aspectRatio="wide" image={content.picUrl} />
-            <CardTitle>{content.title}</CardTitle>
-            <CardText>{content.description}</CardText>
+            <CardMedia aspectRatio="wide" image={cardContent.picUrl} />
+            <div style={{ padding: "12px" }}>
+              <strong>{cardContent.title}</strong>
+              <p>{cardContent.description}</p>
+            </div>
           </Card>
         );
+      }
       default:
         return null;
     }
