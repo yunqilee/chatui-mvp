@@ -11,6 +11,7 @@ import { marked } from "marked";
 import DOMpurify from "dompurify";
 import { isMarkdown } from "./utils/isMarkdown";
 import { getCurrentWeather } from "./utils/getCurrentWeather";
+import { detectWeatherIntent } from "./utils/detectWeatherIntent";
 import "./App.css";
 import "@chatui/core/dist/index.css";
 
@@ -53,7 +54,8 @@ function App() {
         position: "left",
       });
 
-      if (val.includes("今天") && val.includes("天气")) {
+      const needWeather = await detectWeatherIntent(val);
+      if (needWeather) {
         const weatherCard = await getCurrentWeather();
         updateMsg(typingId, {
           type: "card",
